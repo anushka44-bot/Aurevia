@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+body {
+  background-color: #2D2C4A;
+  color: #E8DCC8;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar{
+  @apply hidden
+}
