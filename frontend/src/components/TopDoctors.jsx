@@ -1,9 +1,10 @@
-import React from "react";
-import { doctors } from "../assets/assets";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { AppContext } from "../context/AppContext";
 
 const TopDoctors = () => {
   const navigate = useNavigate();
+  const { doctors } = useContext(AppContext);
 
   return (
     <div className="flex flex-col items-center gap-4 my-20 px-4">
@@ -53,7 +54,10 @@ const TopDoctors = () => {
 
       {/* View All Doctors Button */}
       <button
-        onClick={() => navigate("/doctors")}
+        onClick={() => {
+          navigate("/doctors");
+          scrollTo(0, 0);
+        }}
         className="mt-12 bg-[#D4AF37] text-[#0B1F3A] px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
       >
         View All Doctors
