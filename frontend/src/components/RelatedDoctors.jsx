@@ -1,10 +1,22 @@
-import React, { useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
+import { specialityData } from "../assets/assets";
+import { useNavigate } from "react-router-dom";
 
-const TopDoctors = () => {
-  const navigate = useNavigate();
+const RelatedDoctors = ({ speciality, docId }) => {
   const { doctors } = useContext(AppContext);
+  const navigate = useNavigate();
+
+  const [relDoc, setRelDocs] = useState([]);
+
+  useEffect(() => {
+    if (doctors.length > 0 && speciality) {
+      const doctorsData = doctors.filter(
+        (doc) => doc.speciality === speciality && doc._id != docId,
+      );
+      setRelDocs(doctorsData);
+    }
+  }, [doctors, specialityData, docId]);
 
   return (
     <div className="flex flex-col items-center gap-4 my-20 px-4">
@@ -21,7 +33,7 @@ const TopDoctors = () => {
 
       {/* Doctors Grid */}
       <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pt-10">
-        {doctors.slice(0, 8).map((item, index) => (
+        {relDoc.slice(0, 5).map((item, index) => (
           <div
             key={index}
             onClick={() => {
@@ -69,4 +81,4 @@ const TopDoctors = () => {
   );
 };
 
-export default TopDoctors;
+export default RelatedDoctors;
