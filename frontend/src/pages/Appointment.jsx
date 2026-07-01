@@ -15,36 +15,34 @@ const Appointment = () => {
   const [slotTime, setSlotTime] = useState("");
 
   // Fetch doctor
-  const fetchDocInfo = () => {
-    const doctor = doctors.find((doc) => doc._id === docId);
-    setDocInfo(doctor);
-  };
-
-  // Generate available slots
+  // Generate available slots (Monday - Saturday only)
   const getAvailableSlots = () => {
     let slots = [];
-    const today = new Date();
+    let currentDay = new Date();
 
-    for (let i = 0; i < 7; i++) {
-      let currentDate = new Date(today);
-      currentDate.setDate(today.getDate() + i);
+    // Generate 7 working days (excluding Sundays)
+    while (slots.length < 7) {
+      let currentDate = new Date(currentDay);
 
-      let startTime = new Date(currentDate);
-      startTime.setHours(10, 0, 0, 0);
+      // Skip Sunday (0 = Sunday)
+      if (currentDate.getDay() !== 0) {
+        let startTime = new Date(currentDate);
+        startTime.setHours(10, 0, 0, 0);
 
-      let endTime = new Date(currentDate);
-      endTime.setHours(17, 0, 0, 0);
+        let endTime = new Date(currentDate);
+        endTime.setHours(17, 0, 0, 0);
 
-      // Today's slots
-      if (i === 0) {
-        const now = new Date();
+        // If it's today, start from the next available slot
+        const today = new Date();
+        if (
+          currentDate.toDateString() === today.toDateString() &&
+          today > startTime
+        ) {
+          startTime = new Date(today);
 
-        if (now > startTime) {
-          startTime = new Date(now);
-
-          // Round to next 30-minute slot
+          // Round to the next 30-minute slot
           if (startTime.getMinutes() === 0) {
-            // nothing
+            // Do nothing
           } else if (startTime.getMinutes() <= 30) {
             startTime.setMinutes(30);
           } else {
@@ -55,30 +53,34 @@ const Appointment = () => {
           startTime.setSeconds(0);
           startTime.setMilliseconds(0);
         }
+
+        let timeSlots = [];
+
+        while (startTime <= endTime) {
+          timeSlots.push({
+            datetime: new Date(startTime),
+            time: startTime.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          });
+
+          startTime.setMinutes(startTime.getMinutes() + 30);
+        }
+
+        slots.push(timeSlots);
       }
 
-      let timeSlots = [];
-
-      while (startTime <= endTime) {
-        timeSlots.push({
-          datetime: new Date(startTime),
-          time: startTime.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        });
-
-        startTime.setMinutes(startTime.getMinutes() + 30);
-      }
-
-      slots.push(timeSlots);
+      // Move to the next calendar day
+      currentDay.setDate(currentDay.getDate() + 1);
     }
 
     setDocSlots(slots);
   };
 
   useEffect(() => {
-    fetchDocInfo();
+    const doctor = doctors.find((doc) => doc._id === docId);
+    setDocInfo(doctor);
   }, [doctors, docId]);
 
   useEffect(() => {
