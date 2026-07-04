@@ -133,7 +133,7 @@ const Navbar = () => {
         {/* Mobile Menu Icon */}
         <img
           onClick={() => setShowMenu(true)}
-          className="w-6 md:hidden cursor-pointer"
+          className="w-6 md:hidden cursor-pointer brightness-0 sepia saturate-[3000%] hue-rotate-[10deg]"
           src={assets.menu_icon}
           alt=""
         />
@@ -151,7 +151,7 @@ const Navbar = () => {
           <img
             onClick={() => setShowMenu(false)}
             src={assets.cross_icon}
-            className="w-5 cursor-pointer"
+            className="w-5 cursor-pointer brightness-0 sepia saturate-[3000%] hue-rotate-[10deg]"
             alt=""
           />
         </div>
