@@ -4,10 +4,11 @@ export const DoctorContext = createContext();
 
 const DoctorContextProvider = (props) => {
   const value = {};
+
   return (
-    <DoctorContextProvider value={value}>
+    <DoctorContext.Provider value={value}>
       {props.children}
-    </DoctorContextProvider>
+    </DoctorContext.Provider>
   );
 };
 
