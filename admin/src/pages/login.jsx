@@ -1,12 +1,41 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { assets } from "../assets/assets";
+import { AdminContext } from "../context/AdminContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [state, setState] = useState("Admin");
+  const { setAToken, backendUrl } = useContext(AdminContext);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const onSubmitHandler = async (event) => {
+    event.preventDefault();
+    try {
+      if (state === "Admin") {
+        const { data } = await axios.post(backendUrl + "/api/admin/login", {
+          email,
+          password,
+        });
+
+        if (data.success) {
+          localStorage.setItem("aToken", data.token);
+          setAToken(data.token);
+        } else {
+          toast.error(data.message);
+        }
+      }
+    } catch (error) {}
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 bg-[#1F2A44]">
-      <form className="w-full max-w-md bg-[#2A3655] border border-[#D4AF37]/20 rounded-3xl shadow-2xl p-8">
+      <form
+        onSubmit={onSubmitHandler}
+        className="w-full max-w-md bg-[#2A3655] border border-[#D4AF37]/20 rounded-3xl shadow-2xl p-8"
+      >
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <img src={assets.admin_logo} alt="Aurevia Logo" className="w-60" />
@@ -31,6 +60,8 @@ const Login = () => {
           </label>
 
           <input
+            onChange={(e) => setEmail(e.target.value)}
+            value={email}
             type="email"
             placeholder={
               state === "Admin" ? "admin@aurevia.com" : "doctor@aurevia.com"
@@ -47,6 +78,8 @@ const Login = () => {
           </label>
 
           <input
+            onChange={(e) => setPassword(e.target.value)}
+            value={password}
             type="password"
             placeholder="••••••••"
             required
@@ -106,4 +139,3 @@ const Login = () => {
 };
 
 export default Login;
-//6:30:06
