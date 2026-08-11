@@ -100,27 +100,72 @@ const getProfile = async (req, res) => {
 };
 
 // API to update user profile
-const updateProfile=async(req,res)=>{
+
+const updateProfile = async (req, res) => {
   try {
+    const { name, phone, address, dob, gender } = req.body;
+    const userId = req.userId;
+    const imageFile = req.file;
 
-    const {userId,name,phone,address,dob,gender}=req.body
-    const imageFile=req.imageFile
+    console.log("USER ID:", userId);
+    console.log("BODY:", req.body);
+    console.log("FILE:", imageFile);
 
-    if(!name || !phone || !dob || !gender){
-      return res.json({success:false,message:'Data Missing'})
+    // Check required data
+    if (!name || !phone || !dob || !gender) {
+      return res.json({
+        success: false,
+        message: "Data Missing",
+      });
     }
 
-    await userModel.findByIdAndUpdate(userId , {name,phone,address:JSON.parse(address),dob,gender})
+    // Update user details
+    const updatedUser = await userModel.findByIdAndUpdate(
+      userId,
+      {
+        name,
+        phone,
+        address: address ? JSON.parse(address) : {},
+        dob,
+        gender,
+      },
+      { new: true }
+    );
 
-    if(imageFile){
-      const imageUpload = await cloudinary.uploader.upload(imageFile.path,{resource_type:'image'})
-      const imageURL= imageUpload.secure_url
-      await userModel.findByIdAndUpdate(userId,{image:imageURL})
+    console.log("UPDATED USER:", updatedUser);
+
+    // Check if user exists
+    if (!updatedUser) {
+      return res.json({
+        success: false,
+        message: "User not found",
+      });
     }
-     res.json({
+
+    // Upload new profile image if provided
+    if (imageFile) {
+      const imageUpload = await cloudinary.uploader.upload(
+        imageFile.path,
+        {
+          resource_type: "image",
+        }
+      );
+
+      const imageURL = imageUpload.secure_url;
+
+      await userModel.findByIdAndUpdate(
+        userId,
+        {
+          image: imageURL,
+        }
+      );
+    }
+
+    res.json({
       success: true,
       message: "Profile Updated",
     });
+
   } catch (error) {
     console.log(error);
 
@@ -129,6 +174,6 @@ const updateProfile=async(req,res)=>{
       message: error.message,
     });
   }
-}
+};
 
 export {registerUser,loginUser,getProfile,updateProfile}
