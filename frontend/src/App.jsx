@@ -12,10 +12,12 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { ToastContainer, toast } from "react-toastify";
+import ScrollToTop from "./components/ScrollToTop";
 
 const App = () => {
   return (
     <div className="mx-4 sm:mx-[10%]">
+      <ScrollToTop />
       <ToastContainer />
       <Navbar />
       <Routes>
