@@ -284,4 +284,39 @@ const bookAppointment = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, getProfile, updateProfile, bookAppointment };
+//API to get user appointments for frontend my-appointments page
+const listAppointment = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    const appointments = await appointmentModel.find({ userId });
+
+    res.json({
+      success: true,
+      appointments,
+    });
+  } catch (error) {
+    console.log("LIST APPOINTMENTS ERROR:", error);
+
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export {
+  registerUser,
+  loginUser,
+  getProfile,
+  updateProfile,
+  bookAppointment,
+  listAppointment,
+};
