@@ -24,11 +24,10 @@ const Appointment = () => {
     let slots = [];
     let currentDay = new Date();
 
-    // Generate 7 working days (excluding Sundays)
     while (slots.length < 7) {
       let currentDate = new Date(currentDay);
 
-      // Skip Sunday (0 = Sunday)
+      // Skip Sunday
       if (currentDate.getDay() !== 0) {
         let startTime = new Date(currentDate);
         startTime.setHours(10, 0, 0, 0);
@@ -36,17 +35,17 @@ const Appointment = () => {
         let endTime = new Date(currentDate);
         endTime.setHours(17, 0, 0, 0);
 
-        // If it's today, start from the next available slot
         const today = new Date();
+
+        // If today, start from next available 30-minute slot
         if (
           currentDate.toDateString() === today.toDateString() &&
           today > startTime
         ) {
           startTime = new Date(today);
 
-          // Round to the next 30-minute slot
           if (startTime.getMinutes() === 0) {
-            // Do nothing
+            // keep current hour
           } else if (startTime.getMinutes() <= 30) {
             startTime.setMinutes(30);
           } else {
@@ -61,13 +60,30 @@ const Appointment = () => {
         let timeSlots = [];
 
         while (startTime <= endTime) {
-          timeSlots.push({
-            datetime: new Date(startTime),
-            time: startTime.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
+          const day = String(currentDate.getDate()).padStart(2, "0");
+          const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+          const year = currentDate.getFullYear();
+
+          const slotDate = `${day}_${month}_${year}`;
+
+          const formattedTime = startTime.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
           });
+
+          // Check if this slot is already booked
+          const isSlotAvailable = docInfo.slots_booked?.[slotDate]?.includes(
+            formattedTime,
+          )
+            ? false
+            : true;
+
+          if (isSlotAvailable) {
+            timeSlots.push({
+              datetime: new Date(startTime),
+              time: formattedTime,
+            });
+          }
 
           startTime.setMinutes(startTime.getMinutes() + 30);
         }
@@ -75,7 +91,7 @@ const Appointment = () => {
         slots.push(timeSlots);
       }
 
-      // Move to the next calendar day
+      // Move to next day
       currentDay.setDate(currentDay.getDate() + 1);
     }
 
