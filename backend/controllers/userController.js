@@ -312,6 +312,88 @@ const listAppointment = async (req, res) => {
   }
 };
 
+// API to cancel appointment
+const cancelAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const userId = req.userId;
+
+    // Validate appointment ID
+    if (!appointmentId) {
+      return res.json({
+        success: false,
+        message: "Appointment ID is required",
+      });
+    }
+
+    // Find appointment
+    const appointment = await appointmentModel.findById(appointmentId);
+
+    if (!appointment) {
+      return res.json({
+        success: false,
+        message: "Appointment not found",
+      });
+    }
+
+    // Make sure appointment belongs to logged-in user
+    if (appointment.userId.toString() !== userId.toString()) {
+      return res.json({
+        success: false,
+        message: "Unauthorized action",
+      });
+    }
+
+    // Check if already cancelled
+    if (appointment.cancelled) {
+      return res.json({
+        success: false,
+        message: "Appointment is already cancelled",
+      });
+    }
+
+    // Mark appointment as cancelled
+    appointment.cancelled = true;
+    await appointment.save();
+
+    // Get doctor
+    const doctor = await doctorModel.findById(appointment.docId);
+
+    if (doctor) {
+      const slots_booked = doctor.slots_booked || {};
+
+      // Remove the booked time from the doctor's slots
+      if (slots_booked[appointment.slotDate]) {
+        slots_booked[appointment.slotDate] = slots_booked[
+          appointment.slotDate
+        ].filter((time) => time !== appointment.slotTime);
+
+        // Remove date if no slots remain
+        if (slots_booked[appointment.slotDate].length === 0) {
+          delete slots_booked[appointment.slotDate];
+        }
+      }
+
+      // Update doctor's booked slots
+      await doctorModel.findByIdAndUpdate(appointment.docId, {
+        slots_booked,
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Appointment Cancelled Successfully",
+    });
+  } catch (error) {
+    console.log("CANCEL APPOINTMENT ERROR:", error);
+
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export {
   registerUser,
   loginUser,
@@ -319,4 +401,5 @@ export {
   updateProfile,
   bookAppointment,
   listAppointment,
+  cancelAppointment,
 };

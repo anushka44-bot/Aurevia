@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 
 const MyAppointments = () => {
-  const { backendUrl, token } = useContext(AppContext);
+  const { backendUrl, token, getDoctorsData } = useContext(AppContext);
 
   const [appointments, setAppointments] = useState([]);
 
@@ -33,6 +33,26 @@ const MyAppointments = () => {
       getUserAppointments();
     }
   }, [token]);
+
+  const cancelAppointment = async (appointmentId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/user/cancel-appointment",
+        { appointmentId },
+        { headers: { token } },
+      );
+      if (data.success) {
+        toast.success(data.message);
+        getUserAppointments();
+        getDoctorsData();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
 
   return (
     <div className="py-10">
@@ -145,7 +165,10 @@ const MyAppointments = () => {
 
                   {/* Cancel Appointment */}
                   {!item.cancelled && (
-                    <button className="w-full border border-red-500 text-red-400 py-3 rounded-full font-semibold hover:bg-red-500 hover:text-white transition">
+                    <button
+                      onClick={() => cancelAppointment(item._id)}
+                      className="w-full border border-red-500 text-red-400 py-3 rounded-full font-semibold hover:bg-red-500 hover:text-white transition"
+                    >
                       Cancel Appointment
                     </button>
                   )}
