@@ -54,6 +54,74 @@ const MyAppointments = () => {
     }
   };
 
+  const initPay = (order, appointmentId) => {
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: "INR",
+      name: "Aurevia",
+      description: "Appointment Payment",
+      order_id: order.id,
+
+      handler: async (response) => {
+        try {
+          const { data } = await axios.post(
+            backendUrl + "/api/user/verify-razorpay",
+            {
+              ...response,
+              appointmentId: appointmentId,
+            },
+            {
+              headers: {
+                token,
+              },
+            },
+          );
+
+          if (data.success) {
+            toast.success("Payment successful");
+            getUserAppointments();
+          } else {
+            toast.error(data.message);
+          }
+        } catch (error) {
+          console.log(error);
+          toast.error(error.response?.data?.message || error.message);
+        }
+      },
+
+      theme: {
+        color: "#D4AF37",
+      },
+    };
+
+    const razorpay = new window.Razorpay(options);
+    razorpay.open();
+  };
+
+  const appointmentRazorpay = async (appointmentId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/user/payment-razorpay",
+        { appointmentId },
+        {
+          headers: {
+            token,
+          },
+        },
+      );
+
+      if (data.success) {
+        initPay(data.order, data.appointmentId);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || error.message);
+    }
+  };
+
   return (
     <div className="py-10">
       {/* Heading */}
@@ -158,7 +226,10 @@ const MyAppointments = () => {
                 <div className="lg:w-72 flex flex-col justify-center gap-4 p-8 bg-[#22304D]">
                   {/* Pay Online */}
                   {!item.payment && !item.cancelled && (
-                    <button className="w-full bg-[#D4AF37] text-[#1F2A44] py-3 rounded-full font-semibold hover:scale-105 transition duration-300">
+                    <button
+                      onClick={() => appointmentRazorpay(item._id)}
+                      className="w-full bg-[#D4AF37] text-[#1F2A44] py-3 rounded-full font-semibold hover:scale-105 transition duration-300"
+                    >
                       Pay Online
                     </button>
                   )}
