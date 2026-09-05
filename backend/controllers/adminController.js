@@ -2,7 +2,8 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
+import appointmentModel from "../models/appointmentModel.js";
 
 const addDoctor = async (req, res) => {
   try {
@@ -115,26 +116,30 @@ const addDoctor = async (req, res) => {
 };
 
 //api for admin login
-const loginAdmin=async(req,res)=>{
-try {
-  const {email,password}=req.body
-  if(email=== process.env.ADMIN_EMAIL && password===process.env.ADMIN_PASSWORD){
-    const token= jwt.sign(email+password,process.env.JWT_SECRET)
-    res.json({success:true,token})
-  }else{
-     res.json({
-      success: false,
-      message: "Invalid credentials",
-    });
-  }
-} catch (error) {
-  console.log(error);
+const loginAdmin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (
+      email === process.env.ADMIN_EMAIL &&
+      password === process.env.ADMIN_PASSWORD
+    ) {
+      const token = jwt.sign(email + password, process.env.JWT_SECRET);
+      res.json({ success: true, token });
+    } else {
+      res.json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+  } catch (error) {
+    console.log(error);
 
     res.json({
       success: false,
       message: error.message,
     });
-}}
+  }
+};
 
 const allDoctors = async (req, res) => {
   try {
@@ -154,4 +159,95 @@ const allDoctors = async (req, res) => {
   }
 };
 
-export { addDoctor,loginAdmin,allDoctors };
+//API to get all appointments list
+const appointmentsAdmin = async (req, res) => {
+  try {
+    const appointments = await appointmentModel.find({});
+
+    res.json({
+      success: true,
+      appointments,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+const cancelAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+
+    if (!appointmentId) {
+      return res.json({
+        success: false,
+        message: "Appointment ID is required",
+      });
+    }
+
+    const appointment = await appointmentModel.findById(appointmentId);
+
+    if (!appointment) {
+      return res.json({
+        success: false,
+        message: "Appointment not found",
+      });
+    }
+
+    if (appointment.cancelled) {
+      return res.json({
+        success: false,
+        message: "Appointment is already cancelled",
+      });
+    }
+
+    // Mark appointment as cancelled
+    appointment.cancelled = true;
+
+    await appointment.save();
+
+    // Free doctor's booked slot
+    const doctor = await doctorModel.findById(appointment.docId);
+
+    if (doctor) {
+      const slots_booked = doctor.slots_booked || {};
+
+      if (slots_booked[appointment.slotDate]) {
+        slots_booked[appointment.slotDate] = slots_booked[
+          appointment.slotDate
+        ].filter((time) => time !== appointment.slotTime);
+
+        if (slots_booked[appointment.slotDate].length === 0) {
+          delete slots_booked[appointment.slotDate];
+        }
+      }
+
+      await doctorModel.findByIdAndUpdate(appointment.docId, {
+        slots_booked,
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Appointment Cancelled Successfully",
+    });
+  } catch (error) {
+    console.log("ADMIN CANCEL APPOINTMENT ERROR:", error);
+
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export {
+  addDoctor,
+  loginAdmin,
+  allDoctors,
+  appointmentsAdmin,
+  cancelAppointment,
+};
