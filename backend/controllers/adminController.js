@@ -4,6 +4,7 @@ import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
 import jwt from "jsonwebtoken";
 import appointmentModel from "../models/appointmentModel.js";
+import userModel from "../models/userModel.js";
 
 const addDoctor = async (req, res) => {
   try {
@@ -244,10 +245,84 @@ const cancelAppointment = async (req, res) => {
   }
 };
 
+// API to get dashboard data for admin panel
+
+const adminDashboard = async (req, res) => {
+  try {
+    const users = await userModel.find({});
+    const doctors = await doctorModel.find({});
+    const appointments = await appointmentModel.find({});
+
+    // Total revenue from completed payments
+    const totalRevenue = appointments
+      .filter((appointment) => appointment.payment === true)
+      .reduce(
+        (total, appointment) => total + Number(appointment.amount || 0),
+        0,
+      );
+
+    // Last 7 days appointment overview
+    const appointmentOverview = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() - i);
+
+      const day = date.toLocaleDateString("en-US", {
+        weekday: "short",
+      });
+
+      const dateString = [
+        String(date.getDate()).padStart(2, "0"),
+        String(date.getMonth() + 1).padStart(2, "0"),
+        date.getFullYear(),
+      ].join("_");
+
+      const count = appointments.filter(
+        (appointment) => appointment.slotDate === dateString,
+      ).length;
+
+      appointmentOverview.push({
+        day,
+        count,
+      });
+    }
+
+    // Latest 5 bookings
+    const latestAppointments = appointments
+      .sort((a, b) => b.date - a.date)
+      .slice(0, 5);
+
+    res.json({
+      success: true,
+
+      dashboardData: {
+        totalUsers: users.length,
+        totalDoctors: doctors.length,
+        totalAppointments: appointments.length,
+        totalRevenue,
+
+        latestAppointments,
+
+        appointmentOverview,
+      },
+    });
+  } catch (error) {
+    console.log("ADMIN DASHBOARD ERROR:", error);
+
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export {
   addDoctor,
   loginAdmin,
   allDoctors,
   appointmentsAdmin,
   cancelAppointment,
+  adminDashboard,
 };
