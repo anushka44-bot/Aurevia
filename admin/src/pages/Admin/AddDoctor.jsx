@@ -168,7 +168,7 @@ const AddDoctor = () => {
                 onChange={(e) => setFees(e.target.value)}
                 value={fees}
                 type="number"
-                placeholder="$ Fees"
+                placeholder="₹ Fees"
                 required
                 className="w-full bg-[#1F2A44] text-white border border-[#D4AF37]/30 rounded-xl px-4 py-3 outline-none focus:border-[#D4AF37]"
               />
