@@ -21,7 +21,7 @@ const Sidebar = () => {
       {dToken && (
         <div className="w-64 min-h-screen bg-[#1F2A44] border-r border-[#D4AF37]/20 shadow-2xl">
           <div className="py-8 px-6">
-            <h2 className="text-[#D4AF37] text-lg font-bold tracking-widest uppercase">
+            <h2 className="text-[#D4AF37] text-lg font-bold tracking-widest uppercase hidden md:block">
               Navigation
             </h2>
 
@@ -35,7 +35,7 @@ const Sidebar = () => {
                 alt=""
                 className="w-6 h-6 brightness-0 invert"
               />
-              <p>Dashboard</p>
+              <p className="hidden md:block">Dashboard</p>
             </NavLink>
 
             <NavLink to="/doctor-appointments" className={navStyle}>
@@ -44,7 +44,7 @@ const Sidebar = () => {
                 alt=""
                 className="w-6 h-6 brightness-0 invert"
               />
-              <p>Appointments</p>
+              <p className="hidden md:block">Appointments</p>
             </NavLink>
 
             <NavLink to="/doctor-profile" className={navStyle}>
@@ -53,7 +53,7 @@ const Sidebar = () => {
                 alt=""
                 className="w-6 h-6 brightness-0 invert"
               />
-              <p>Profile</p>
+              <p className="hidden md:block">Profile</p>
             </NavLink>
           </ul>
         </div>

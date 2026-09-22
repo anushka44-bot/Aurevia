@@ -1,8 +1,15 @@
 import React, { useContext, useEffect } from "react";
 import { DoctorContext } from "../../context/DoctorContext";
+import { assets } from "../../assets/assets";
 
 const DoctorAppointments = () => {
-  const { dToken, appointments, getAppointments } = useContext(DoctorContext);
+  const {
+    dToken,
+    appointments,
+    getAppointments,
+    approveAppointment,
+    cancelAppointment,
+  } = useContext(DoctorContext);
 
   useEffect(() => {
     if (dToken) {
@@ -12,16 +19,15 @@ const DoctorAppointments = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto p-4 sm:p-6">
-      {/* Appointment Card */}
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
         {/* Table Header */}
-        <div className="hidden md:grid grid-cols-[0.4fr_2fr_1fr_1.5fr_1.2fr_1.2fr] gap-4 px-6 py-4 bg-[#F8F9FB] border-b text-sm font-semibold text-gray-600">
+        <div className="hidden md:grid grid-cols-[0.4fr_2fr_1fr_1.5fr_1.2fr_1fr] gap-4 px-6 py-4 bg-[#F8F9FB] border-b text-sm font-semibold text-gray-600">
           <p>#</p>
           <p>Patient</p>
-          <p>Age</p>
+          <p>Date of birth</p>
           <p>Date & Time</p>
           <p>Payment</p>
-          <p>Status</p>
+          <p>Action</p>
         </div>
 
         {/* Appointments */}
@@ -32,7 +38,8 @@ const DoctorAppointments = () => {
               className="border-b last:border-b-0 px-5 md:px-6 py-5 hover:bg-gray-50 transition"
             >
               {/* Desktop */}
-              <div className="hidden md:grid grid-cols-[0.4fr_2fr_1fr_1.5fr_1.2fr_1.2fr] gap-4 items-center">
+              <div className="hidden md:grid grid-cols-[0.4fr_2fr_1fr_1.5fr_1.2fr_1fr] gap-4 items-center">
+                {/* Number */}
                 <p className="text-sm text-gray-500">{index + 1}</p>
 
                 {/* Patient */}
@@ -54,13 +61,9 @@ const DoctorAppointments = () => {
                   </div>
                 </div>
 
-                {/* Age */}
+                {/* Date of Birth */}
                 <p className="text-sm text-gray-600">
-                  {item.userData?.dob
-                    ? new Date().getFullYear() -
-                      new Date(item.userData.dob).getFullYear()
-                    : "N/A"}{" "}
-                  {item.userData?.dob && "years"}
+                  {item.userData?.dob || "N/A"}
                 </p>
 
                 {/* Date & Time */}
@@ -87,22 +90,51 @@ const DoctorAppointments = () => {
                   )}
                 </div>
 
-                {/* Status */}
-                <div>
+                {/* Action */}
+                <div className="flex items-center gap-3">
                   {item.cancelled ? (
-                    <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-600">
+                    <span className="text-sm text-red-600 font-medium">
                       Cancelled
                     </span>
-                  ) : (
-                    <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                  ) : item.approved ? (
+                    <span className="text-sm text-green-600 font-medium">
                       Scheduled
                     </span>
+                  ) : (
+                    <>
+                      {/* Approve */}
+                      <button
+                        onClick={() => approveAppointment(item._id)}
+                        className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-green-100 transition"
+                        title="Approve Appointment"
+                      >
+                        <img
+                          src={assets.tick_icon}
+                          alt="Approve"
+                          className="w-5 h-5"
+                        />
+                      </button>
+
+                      {/* Cancel */}
+                      <button
+                        onClick={() => cancelAppointment(item._id)}
+                        className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-red-100 transition"
+                        title="Cancel Appointment"
+                      >
+                        <img
+                          src={assets.cancel_icon}
+                          alt="Cancel"
+                          className="w-5 h-5"
+                        />
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
 
               {/* Mobile */}
               <div className="md:hidden">
+                {/* Patient */}
                 <div className="flex items-center gap-3 mb-4">
                   <img
                     src={item.userData?.image || "/default-profile.png"}
@@ -122,24 +154,29 @@ const DoctorAppointments = () => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
+                  {/* Appointment */}
                   <div>
                     <p className="text-xs text-gray-400">Appointment</p>
+
                     <p className="font-medium text-gray-700 mt-1">
-                      {item.slotDate}
+                      {item.slotDate || "N/A"}
                     </p>
-                    <p className="text-xs text-gray-500">{item.slotTime}</p>
+
+                    <p className="text-xs text-gray-500">
+                      {item.slotTime || "N/A"}
+                    </p>
                   </div>
 
+                  {/* Date of Birth */}
                   <div>
-                    <p className="text-xs text-gray-400">Age</p>
+                    <p className="text-xs text-gray-400">Date of Birth</p>
+
                     <p className="font-medium text-gray-700 mt-1">
-                      {item.userData?.dob
-                        ? new Date().getFullYear() -
-                          new Date(item.userData.dob).getFullYear()
-                        : "N/A"}
+                      {item.userData?.dob || "N/A"}
                     </p>
                   </div>
 
+                  {/* Payment */}
                   <div>
                     <p className="text-xs text-gray-400">Payment</p>
 
@@ -154,18 +191,49 @@ const DoctorAppointments = () => {
                     )}
                   </div>
 
+                  {/* Action */}
                   <div>
-                    <p className="text-xs text-gray-400">Status</p>
+                    <p className="text-xs text-gray-400">Action</p>
 
-                    {item.cancelled ? (
-                      <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs bg-red-100 text-red-600">
-                        Cancelled
-                      </span>
-                    ) : (
-                      <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs bg-blue-100 text-blue-700">
-                        Scheduled
-                      </span>
-                    )}
+                    <div className="flex items-center gap-3 mt-2">
+                      {item.cancelled ? (
+                        <span className="text-xs text-red-600 font-medium">
+                          Cancelled
+                        </span>
+                      ) : item.approved ? (
+                        <span className="text-xs text-green-600 font-medium">
+                          Scheduled
+                        </span>
+                      ) : (
+                        <>
+                          {/* Approve */}
+                          <button
+                            onClick={() => approveAppointment(item._id)}
+                            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-green-100 transition"
+                            title="Approve Appointment"
+                          >
+                            <img
+                              src={assets.tick_icon}
+                              alt="Approve"
+                              className="w-5 h-5"
+                            />
+                          </button>
+
+                          {/* Cancel */}
+                          <button
+                            onClick={() => cancelAppointment(item._id)}
+                            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-red-100 transition"
+                            title="Cancel Appointment"
+                          >
+                            <img
+                              src={assets.cancel_icon}
+                              alt="Cancel"
+                              className="w-5 h-5"
+                            />
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
