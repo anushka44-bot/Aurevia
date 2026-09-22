@@ -88,4 +88,131 @@ const appointmentsDoctor = async (req, res) => {
   }
 };
 
-export { changeAvailability, doctorList, loginDoctor, appointmentsDoctor };
+// API to approve doctor appointment
+const approveAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+
+    const appointment = await appointmentModel.findById(appointmentId);
+
+    if (!appointment) {
+      return res.json({
+        success: false,
+        message: "Appointment not found",
+      });
+    }
+
+    if (appointment.cancelled) {
+      return res.json({
+        success: false,
+        message: "Cancelled appointment cannot be approved",
+      });
+    }
+
+    appointment.approved = true;
+    await appointment.save();
+
+    res.json({
+      success: true,
+      message: "Appointment Approved",
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// API to cancel doctor appointment
+const cancelAppointmentDoctor = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+
+    const appointment = await appointmentModel.findById(appointmentId);
+
+    if (!appointment) {
+      return res.json({
+        success: false,
+        message: "Appointment not found",
+      });
+    }
+
+    appointment.cancelled = true;
+    appointment.approved = false;
+
+    await appointment.save();
+
+    res.json({
+      success: true,
+      message: "Appointment Cancelled",
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+// API to get doctor dashboard data
+const doctorDashboard = async (req, res) => {
+  try {
+    const docId = req.doctorId;
+
+    const appointments = await appointmentModel
+      .find({ docId })
+      .sort({ date: -1 });
+
+    // Total appointments
+    const totalAppointments = appointments.length;
+
+    // Total unique patients
+    const patientIds = new Set(
+      appointments.map((appointment) => appointment.userId?.toString()),
+    );
+
+    const totalPatients = patientIds.size;
+
+    // Total earnings from paid appointments
+    const totalEarnings = appointments
+      .filter((appointment) => appointment.payment === true)
+      .reduce(
+        (total, appointment) => total + Number(appointment.amount || 0),
+        0,
+      );
+
+    // Latest 3 appointments
+    const latestAppointments = appointments.slice(0, 3);
+
+    res.json({
+      success: true,
+      dashboardData: {
+        totalEarnings,
+        totalAppointments,
+        totalPatients,
+        latestAppointments,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export {
+  changeAvailability,
+  doctorList,
+  loginDoctor,
+  appointmentsDoctor,
+  approveAppointment,
+  cancelAppointmentDoctor,
+  doctorDashboard,
+};
