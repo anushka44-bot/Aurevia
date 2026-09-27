@@ -17,14 +17,64 @@ const Sidebar = () => {
      }`;
 
   return (
-    <>
-      {dToken && (
-        <div className="w-64 min-h-screen bg-[#1F2A44] border-r border-[#D4AF37]/20 shadow-2xl">
+    <div className="w-64 min-h-screen bg-[#1F2A44] border-r border-[#D4AF37]/20 shadow-2xl">
+      {/* ADMIN SIDEBAR */}
+      {aToken && (
+        <>
           <div className="py-8 px-6">
             <h2 className="text-[#D4AF37] text-lg font-bold tracking-widest uppercase hidden md:block">
               Navigation
             </h2>
+            <div className="w-14 h-1 bg-[#D4AF37] rounded-full mt-2"></div>
+          </div>
 
+          <ul className="flex flex-col gap-3 px-4">
+            <NavLink to="/admin-dashboard" className={navStyle}>
+              <img
+                src={assets.home_icon}
+                alt=""
+                className="w-6 h-6 brightness-0 invert"
+              />
+              <p className="hidden md:block">Dashboard</p>
+            </NavLink>
+
+            <NavLink to="/all-appointments" className={navStyle}>
+              <img
+                src={assets.appointment_icon}
+                alt=""
+                className="w-6 h-6 brightness-0 invert"
+              />
+              <p className="hidden md:block">Appointments</p>
+            </NavLink>
+
+            <NavLink to="/add-doctor" className={navStyle}>
+              <img
+                src={assets.add_icon}
+                alt=""
+                className="w-6 h-6 brightness-0 invert"
+              />
+              <p className="hidden md:block">Add Doctor</p>
+            </NavLink>
+
+            <NavLink to="/doctor-list" className={navStyle}>
+              <img
+                src={assets.people_icon}
+                alt=""
+                className="w-6 h-6 brightness-0 invert"
+              />
+              <p className="hidden md:block">Doctor List</p>
+            </NavLink>
+          </ul>
+        </>
+      )}
+
+      {/* DOCTOR SIDEBAR */}
+      {dToken && (
+        <>
+          <div className="py-8 px-6">
+            <h2 className="text-[#D4AF37] text-lg font-bold tracking-widest uppercase hidden md:block">
+              Navigation
+            </h2>
             <div className="w-14 h-1 bg-[#D4AF37] rounded-full mt-2"></div>
           </div>
 
@@ -47,6 +97,15 @@ const Sidebar = () => {
               <p className="hidden md:block">Appointments</p>
             </NavLink>
 
+            <NavLink to="/appointment-management" className={navStyle}>
+              <img
+                src={assets.appointment_icon}
+                alt=""
+                className="w-6 h-6 brightness-0 invert"
+              />
+              <p className="hidden md:block">Appointment Management</p>
+            </NavLink>
+
             <NavLink to="/doctor-profile" className={navStyle}>
               <img
                 src={assets.people_icon}
@@ -56,9 +115,9 @@ const Sidebar = () => {
               <p className="hidden md:block">Profile</p>
             </NavLink>
           </ul>
-        </div>
+        </>
       )}
-    </>
+    </div>
   );
 };
 

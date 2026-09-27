@@ -41,6 +41,7 @@ const MyAppointments = () => {
         { appointmentId },
         { headers: { token } },
       );
+
       if (data.success) {
         toast.success(data.message);
         getUserAppointments();
@@ -210,6 +211,10 @@ const MyAppointments = () => {
                       <span className="px-4 py-2 rounded-full bg-red-500/20 text-red-400 text-sm">
                         Appointment Cancelled
                       </span>
+                    ) : item.completed ? (
+                      <span className="px-4 py-2 rounded-full bg-green-500/20 text-green-400 text-sm">
+                        Appointment Completed
+                      </span>
                     ) : item.payment ? (
                       <span className="px-4 py-2 rounded-full bg-green-500/20 text-green-400 text-sm">
                         Payment Completed
@@ -224,31 +229,36 @@ const MyAppointments = () => {
 
                 {/* Buttons */}
                 <div className="lg:w-72 flex flex-col justify-center gap-4 p-8 bg-[#22304D]">
-                  {/* Pay Online */}
-                  {!item.payment && !item.cancelled && (
-                    <button
-                      onClick={() => appointmentRazorpay(item._id)}
-                      className="w-full bg-[#D4AF37] text-[#1F2A44] py-3 rounded-full font-semibold hover:scale-105 transition duration-300"
-                    >
-                      Pay Online
-                    </button>
-                  )}
-
-                  {/* Cancel Appointment */}
-                  {!item.cancelled && (
-                    <button
-                      onClick={() => cancelAppointment(item._id)}
-                      className="w-full border border-red-500 text-red-400 py-3 rounded-full font-semibold hover:bg-red-500 hover:text-white transition"
-                    >
-                      Cancel Appointment
-                    </button>
-                  )}
-
-                  {/* Cancelled message */}
-                  {item.cancelled && (
+                  {/* Cancelled */}
+                  {item.cancelled ? (
                     <p className="text-center text-red-400">
                       This appointment has been cancelled.
                     </p>
+                  ) : item.completed ? (
+                    /* Completed */
+                    <p className="text-center text-green-400 font-medium">
+                      This appointment has been completed.
+                    </p>
+                  ) : (
+                    <>
+                      {/* Pay Online */}
+                      {!item.payment && (
+                        <button
+                          onClick={() => appointmentRazorpay(item._id)}
+                          className="w-full bg-[#D4AF37] text-[#1F2A44] py-3 rounded-full font-semibold hover:scale-105 transition duration-300"
+                        >
+                          Pay Online
+                        </button>
+                      )}
+
+                      {/* Cancel Appointment */}
+                      <button
+                        onClick={() => cancelAppointment(item._id)}
+                        className="w-full border border-red-500 text-red-400 py-3 rounded-full font-semibold hover:bg-red-500 hover:text-white transition"
+                      >
+                        Cancel Appointment
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
