@@ -38,7 +38,6 @@ const Doctors = () => {
 
       <div className="flex flex-col lg:flex-row gap-10">
         {/* Left Filter */}
-        {/* Left Filter */}
         <div className="w-full lg:w-64">
           <div className="bg-[#2A3655] rounded-2xl p-5 shadow-lg">
             <h2 className="text-[#D4AF37] text-xl font-semibold mb-5">
@@ -145,8 +144,14 @@ const Doctors = () => {
             {filterDoc.map((item) => (
               <div
                 key={item._id}
-                onClick={() => navigate(`/appointment/${item._id}`)}
-                className="bg-[#F7F2EA] rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer"
+                onClick={() =>
+                  item.available && navigate(`/appointment/${item._id}`)
+                }
+                className={`bg-[#F7F2EA] rounded-3xl overflow-hidden shadow-lg transition-all duration-300 ${
+                  item.available
+                    ? "hover:shadow-2xl hover:-translate-y-2 cursor-pointer"
+                    : "cursor-not-allowed opacity-90"
+                }`}
               >
                 <img
                   src={item.image}
@@ -155,10 +160,20 @@ const Doctors = () => {
                 />
 
                 <div className="p-5">
+                  {/* Availability */}
                   <div className="flex items-center gap-2 mb-3">
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    <p className="text-green-600 text-sm font-medium">
-                      Available
+                    <div
+                      className={`w-3 h-3 rounded-full ${
+                        item.available ? "bg-green-500" : "bg-red-500"
+                      }`}
+                    ></div>
+
+                    <p
+                      className={`text-sm font-medium ${
+                        item.available ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      {item.available ? "Available" : "Not Available"}
                     </p>
                   </div>
 
@@ -168,8 +183,23 @@ const Doctors = () => {
 
                   <p className="text-gray-600 mt-2">{item.speciality}</p>
 
-                  <button className="mt-5 w-full bg-[#D4AF37] text-[#1F2A44] py-3 rounded-full font-semibold hover:opacity-90 transition">
-                    Book Appointment
+                  {/* Booking Button */}
+                  <button
+                    disabled={!item.available}
+                    onClick={(e) => {
+                      e.stopPropagation();
+
+                      if (item.available) {
+                        navigate(`/appointment/${item._id}`);
+                      }
+                    }}
+                    className={`mt-5 w-full py-3 rounded-full font-semibold transition ${
+                      item.available
+                        ? "bg-[#D4AF37] text-[#1F2A44] hover:opacity-90 cursor-pointer"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    }`}
+                  >
+                    {item.available ? "Book Appointment" : "Not Available"}
                   </button>
                 </div>
               </div>
