@@ -30,8 +30,6 @@ const AllAppointments = () => {
 
       if (data.success) {
         toast.success(data.message);
-
-        // Refresh appointments after cancellation
         getAllAppointments();
       } else {
         toast.error(data.message);
@@ -130,12 +128,35 @@ const AllAppointments = () => {
 
               {/* Action */}
               <div className="flex flex-col items-start gap-2">
+                {/* CANCELLED */}
                 {item.cancelled ? (
                   <span className="inline-flex items-center gap-1.5 text-xs font-medium text-red-500 bg-red-50 px-3 py-1.5 rounded-full">
                     <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
                     Cancelled
                   </span>
+                ) : /* COMPLETED */
+                item.completed ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-50 px-3 py-1.5 rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                    Completed
+                  </span>
+                ) : /* SCHEDULED */
+                item.approved ? (
+                  <>
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                      Scheduled
+                    </span>
+
+                    <button
+                      onClick={() => cancelAppointment(item._id)}
+                      className="text-xs font-medium text-gray-500 hover:text-red-500 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </>
                 ) : (
+                  /* PENDING */
                   <>
                     {item.payment ? (
                       <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-50 px-3 py-1.5 rounded-full">

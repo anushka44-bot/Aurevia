@@ -1,16 +1,27 @@
 import React, { useContext } from "react";
 import { AdminContext } from "../context/AdminContext";
+import { DoctorContext } from "../context/DoctorContext";
 import { assets } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const { aToken, setAToken } = useContext(AdminContext);
+  const { dToken, setDToken } = useContext(DoctorContext);
+
   const navigate = useNavigate();
 
   const logout = () => {
+    if (aToken) {
+      localStorage.removeItem("aToken");
+      setAToken("");
+    }
+
+    if (dToken) {
+      localStorage.removeItem("dToken");
+      setDToken("");
+    }
+
     navigate("/");
-    aToken && localStorage.removeItem("aToken");
-    aToken && setAToken("");
   };
 
   return (
@@ -21,7 +32,7 @@ const Navbar = () => {
           onClick={() => navigate("/")}
           src={assets.admin_logo}
           alt="Aurevia Admin"
-          className="w-44 object-contain"
+          className="w-44 object-contain cursor-pointer"
         />
 
         <span className="bg-[#D4AF37] text-[#1F2A44] px-4 py-1 rounded-full text-sm font-semibold">

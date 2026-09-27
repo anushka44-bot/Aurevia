@@ -4,6 +4,7 @@ import {
   doctorList,
   loginDoctor,
   approveAppointment,
+  completeAppointment,
   cancelAppointmentDoctor,
   doctorDashboard,
   doctorProfile,
@@ -18,6 +19,7 @@ doctorRouter.post("/login", loginDoctor);
 doctorRouter.get("/appointments", authDoctor, appointmentsDoctor);
 doctorRouter.post("/approve-appointment", authDoctor, approveAppointment);
 doctorRouter.post("/cancel-appointment", authDoctor, cancelAppointmentDoctor);
+doctorRouter.post("/complete-appointment", authDoctor, completeAppointment);
 doctorRouter.get("/dashboard", authDoctor, doctorDashboard);
 doctorRouter.get("/profile", authDoctor, doctorProfile);
 doctorRouter.post("/update-profile", authDoctor, updateDoctorProfile);

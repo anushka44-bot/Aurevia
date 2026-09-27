@@ -276,6 +276,51 @@ const updateDoctorProfile = async (req, res) => {
     });
   }
 };
+// API to mark appointment as completed
+const completeAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+
+    const appointment = await appointmentModel.findById(appointmentId);
+
+    if (!appointment) {
+      return res.json({
+        success: false,
+        message: "Appointment not found",
+      });
+    }
+
+    if (appointment.cancelled) {
+      return res.json({
+        success: false,
+        message: "Cancelled appointment cannot be completed",
+      });
+    }
+
+    if (!appointment.approved) {
+      return res.json({
+        success: false,
+        message: "Only scheduled appointments can be completed",
+      });
+    }
+
+    appointment.completed = true;
+
+    await appointment.save();
+
+    res.json({
+      success: true,
+      message: "Appointment marked as completed",
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 export {
   changeAvailability,
@@ -287,4 +332,5 @@ export {
   doctorDashboard,
   doctorProfile,
   updateDoctorProfile,
+  completeAppointment,
 };

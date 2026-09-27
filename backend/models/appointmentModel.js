@@ -56,6 +56,10 @@ const appointmentSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  completed: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const appointmentModel =
