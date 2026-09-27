@@ -317,12 +317,12 @@ Admin    → admin
 ### Aurevia — Patient Website
 
 **Live Website:**
-`[https://aurevia-tan.vercel.app/]`
+https://aurevia-tan.vercel.app/
 
 ### Aurevia — Admin Panel
 
 **Admin Panel:**
-`[https://aurevia-adminpanel.vercel.app/]`
+https://aurevia-adminpanel.vercel.app/
 
 ---
 
